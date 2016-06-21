@@ -1,9 +1,6 @@
 MODISSubsets <-
-function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDate = FALSE, TimeSeriesLength = 0, Transect = FALSE)
+function(LoadDat, FileSep = NULL, Products, Bands, Size, StartDate = FALSE, TimeSeriesLength = 0, Transect = FALSE)
 {
-    if(SaveDir == '.') cat('Files downloaded will be written to ', getwd(), '.\n', sep = '')
-    if(SaveDir != '.') cat('Files downloaded will be written to ', SaveDir, '.\n', sep = '')
-
     # Load data of locations; external data file, or an R object.
     if(!is.object(LoadDat) & !is.character(LoadDat)) stop("LoadDat must be an object in R or a file path character string.")
     if(is.object(LoadDat)) dat <- data.frame(LoadDat)
@@ -33,9 +30,6 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
 
     # Now that incomplete coordinates have been checked for, check also that each coordinate has date information.
     if(any(is.na(dat$lat) != is.na(dat$end.date))) stop("Not all coordinates have a corresponding date.")
-
-    # Check SaveDir matches an existing directory.
-    if(!file.exists(SaveDir)) stop("Input for SaveDir does not resemble an existing file path.")
 
     # Check StartDate is logial.
     if(!is.logical(StartDate)) stop("StartDate must be logical.")
@@ -168,47 +162,15 @@ function(LoadDat, FileSep = NULL, Products, Bands, Size, SaveDir = ".", StartDat
     #####
 
     ##### Retrieve data subsets for each time-series of a set of product bands, saving data for each time series into ASCII files.
-    lat.long <- BatchDownload(lat.long = lat.long, start.date = start.date, end.date = end.date, MODIS.start = MODIS.start, MODIS.end = MODIS.end,
-                              Bands = Bands, Products = Products, Size = Size, StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
+    ll <- BatchDownload(lat.long = lat.long, start.date = start.date, end.date = end.date, MODIS.start = MODIS.start, MODIS.end = MODIS.end,
+                              Bands = Bands, Products = Products, Size = Size, StartDate = StartDate, Transect = Transect)
+    lat.long <- ll[[1]]
 
     # Run a second round of downloads for any time-series that incompletely downloaded, and overwrite originals.
     success.check <- lat.long$Status != "Successful download"
     if(any(success.check)){
-      cat("Some subsets that were downloaded were incomplete. Retrying download again for these time-series...\n")
+      cat("Some subsets that were downloaded were incomplete.")
 
-      lat.long[success.check, ] <- BatchDownload(lat.long = lat.long[success.check, ], start.date = start.date, end.date = end.date,
-                                                 MODIS.start = MODIS.start, MODIS.end = MODIS.end, Bands = Bands, Products = Products,
-                                                 Size = Size, StartDate = StartDate, Transect = Transect, SaveDir = SaveDir)
-
-      success.check <- lat.long$Status != "Successful download"
-      if(any(success.check)) cat("Incomplete downloads were re-tried but incomplete downloads remain. See subset download file.\n")
     }
-    #####
-
-    ##### Write a summary file with IDs and unique time-series information.
-    date <- as.POSIXlt(Sys.time())
-    file.date <- paste(as.Date(date),
-                       paste(paste0("h", date$hour), paste0("m", date$min), paste0("s", round(date$sec, digits=0)), sep = "-"),
-                       sep = "_")
-    if(!Transect){
-      write.table(lat.long, file = file.path(SaveDir, paste0("SubsetDownload_", file.date, ".csv")),
-                  col.names = TRUE, row.names = FALSE, sep = ",")
-    }
-    if(Transect){
-      DirList <- list.files(path = SaveDir)
-      w.transect <- regexpr("Point", dat$ID[1])
-      transect.id <- substr(dat$ID[1], 1, w.transect - 1)
-
-      if(!any(DirList == file.path(SaveDir, paste0(transect.id, "_SubsetDownload_", file.date, ".csv")))){
-        write.table(lat.long, file = file.path(SaveDir, paste0(transect.id, "_SubsetDownload_", file.date, ".csv")),
-                    col.names = TRUE, row.names = FALSE, sep = ",")
-      } else {
-        write.table(lat.long, file = file.path(SaveDir, paste0(transect.id, "_SubsetDownload_", file.date, ".csv")),
-                    col.names = FALSE, row.names = FALSE, sep = ",", append = TRUE)
-      }
-    }
-    #####
-
-    # Print message to confirm downloads are complete and to remind the user to check summary file for any missing data.
-    if(!Transect) cat("Done! Check the subset download file for correct subset information and download messages.\n")
+    return(ll[[2]])
 }
