@@ -1,5 +1,5 @@
 BatchDownload <-
-function(lat.long, start.date, end.date, MODIS.start, MODIS.end, Bands, Products, Size, StartDate, Transect, SaveDir)
+function(lat.long, start.date, end.date, MODIS.start, MODIS.end, Bands, Products, Size, StartDate, Transect)
 {
     # DEFINE
     NCOL_SERVER_RES <- 10
@@ -246,18 +246,7 @@ function(lat.long, start.date, end.date, MODIS.start, MODIS.end, Bands, Products
       # Write an ascii file with all dates for each band at a given location into the working directory.
       prods <- paste(Products, collapse = "_")
 
-      # Edit by MB: save subsets as a rds file
-      if(!Transect) {
-        saveRDS(
-          object = subsets, 
-          file   = file.path(SaveDir, paste(lat.long$SubsetID[i], "___", prods, ".asc.rds", sep = "")))
-      }
-      if(Transect){
-        if(i == 1) write(subsets, file = file.path(SaveDir, paste(lat.long$SubsetID[i], "___", prods, ".asc", sep = "")), sep = "")
-        if(i != 1) write(subsets, file = file.path(SaveDir, paste(lat.long$SubsetID[i], "___", prods, ".asc", sep = "")), sep = "", append = TRUE)
-      }
-
-      if(i == nrow(lat.long)) cat("Full subset download complete. Writing the subset download file...\n")
     }
-    return(lat.long)
+
+    return(list(lat.long, subsets))
 }
