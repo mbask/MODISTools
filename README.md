@@ -15,7 +15,7 @@ install.packages("devtools")
 library(devtools)
 ```
 
-Then use `install_github`, with this repository name, to install `MODISTools4LateFrost` straight from github.
+Then use `install_github`, with this repository name, to install `MODISTools4LateFrost` straight from GitHub.
 ```
 install_github("mbask/MODISTools", build_vignettes=FALSE)
 ```
