@@ -48,7 +48,11 @@ if(grepl("Server is busy handling other requests",
 ### Check the XML response is as expected.
 getsubset.xml <- paste('
 <soapenv:Envelope xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"
+<<<<<<< HEAD
                        xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="http://daacmodis.ornl.gov/MODIS_webservice">
+=======
+                       xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:mod="', daacmodis, '/MODIS_webservice">
+>>>>>>> 83b192bb39f6e6095b36364a195ff05efc7e17da
                        <soapenv:Header/>
                        <soapenv:Body>
                        <mod:getsubset soapenv:encodingStyle="http://schemas.xmlsoap.org/soap/encoding/">
@@ -73,7 +77,11 @@ header.fields <- c(Accept = "text/xml",
 reader <- basicTextGatherer()
 header <- basicTextGatherer()
 
+<<<<<<< HEAD
 curlPerform(url = "http://daacmodis.ornl.gov/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl",
+=======
+curlPerform(url = paste0(daacmodis, "/cgi-bin/MODIS/GLBVIZ_1_Glb_subset/MODIS_webservice.pl"),
+>>>>>>> 83b192bb39f6e6095b36364a195ff05efc7e17da
             httpheader = header.fields,
             postfields = getsubset.xml,
             writefunction = reader$update,

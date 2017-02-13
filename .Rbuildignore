@@ -4,3 +4,5 @@
 README.md
 tests/MODISTools_FullTestingScript.R
 tests/MODISTools_FullTestingScript.Rout
+^.*\.Rproj$
+^\.Rproj\.user$
